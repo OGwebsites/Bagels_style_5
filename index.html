@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html lang="he" dir="rtl">
+<html lang="he" dir="rtl" style="overflow-x: hidden; max-width: 100%;">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
     <title>BAGELZ | סנדוויץ' בר בשרי מושחת</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -33,6 +33,8 @@
             box-sizing: border-box;
             scroll-behavior: smooth;
             -webkit-tap-highlight-color: transparent;
+            user-select: none; /* Prevents accidental selection/movement highlights */
+            -webkit-user-select: none;
         }
 
         body {
@@ -43,6 +45,7 @@
             position: relative;
             line-height: 1.6;
             width: 100%;
+            max-width: 100vw;
         }
 
         .container {
@@ -233,7 +236,7 @@
             max-width: 380px;
         }
 
-        .image-glass-card img { width: 100%; height: 360px; object-fit: cover; border-radius: 18px; }
+        .image-glass-card img { width: 100%; height: 360px; object-fit: cover; border-radius: 18px; pointer-events: none; }
 
         .floating-tag {
             position: absolute; bottom: -12px; left: 50%; transform: translateX(-50%);
@@ -261,7 +264,7 @@
         }
         .menu-card:hover { transform: translateY(-4px); border-color: rgba(255, 107, 53, 0.3); }
         .menu-img-container { height: 220px; overflow: hidden; }
-        .menu-img-container img { width: 100%; height: 100%; object-fit: cover; }
+        .menu-img-container img { width: 100%; height: 100%; object-fit: cover; pointer-events: none; }
 
         .menu-info { padding: 20px; }
         .menu-meta { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; gap: 8px; }
@@ -534,7 +537,6 @@
         // כפיית גלילה לחלק העליון (דף הבית) מיד עם טעינת האתר
         window.addEventListener('DOMContentLoaded', () => {
             if (window.location.hash) {
-                // מנקה את ההאש בכתובת בשביל למנוע מהדפדפן לקפוץ ישירות לאמצע העמוד
                 history.replaceState(null, null, ' ');
             }
             window.scrollTo(0, 0);
@@ -545,22 +547,31 @@
         const navMenu = document.getElementById('navMenu');
         const navLinks = document.querySelectorAll('nav a');
 
-        mobileMenuBtn.addEventListener('click', () => {
+        mobileMenuBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
             mobileMenuBtn.classList.toggle('active');
             navMenu.classList.toggle('active');
         });
 
+        // סגירת התפריט בלחיצה על קישור או מחוצה לו
         navLinks.forEach(link => {
             link.addEventListener('click', () => {
-                mobileMenuBtn.remove('active');
+                mobileMenuBtn.classList.remove('active');
                 navMenu.classList.remove('active');
             });
+        });
+
+        document.addEventListener('click', (e) => {
+            if (!navMenu.contains(e.target) && !mobileMenuBtn.contains(e.target)) {
+                mobileMenuBtn.classList.remove('active');
+                navMenu.classList.remove('active');
+            }
         });
 
         // שינוי לינק פעיל בניווט בזמן גלילה
         const sections = document.querySelectorAll('section, footer');
         window.addEventListener('scroll', () => {
-            let current = 'home'; // ברירת מחדל כדי למנוע מצב ללא קלאס פעיל
+            let current = 'home';
             sections.forEach(section => {
                 const sectionTop = section.offsetTop;
                 if (window.scrollY >= (sectionTop - 200)) {
